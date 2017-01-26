@@ -1,0 +1,65 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title> Mandelbrot Drawing </title>
+</head>
+<body style="background: black">
+<canvas id="canvas" width=800 height=800></canvas>
+
+<form>
+<label for="in_scale">Scale, as a positive decimal >= 1:</label>
+<input id="in_scale" type="number" min="1" step="0.1" />
+
+<label for="in_cr">Real origine, as a decimal between -2 and 2:</label>
+<input id="in_cr" type="number" min=-2 max=2 step=0.1 />
+
+<label for="in_ci">Imaginary origine, as a decimal between -2 and 2:</label>
+<input id="in_ci" type="number" min=-2 max=2 step=0.1 />
+
+<label for="in_escape">Escape radius, as a positive decimal >= 2:</label>
+<input id="in_escape" type="number" min=2 step=1 />
+
+<label for="in_iter">Maximum number of iterations, as an integer >=2</label>
+<input id="in_iter" type="number" min=2 step=1 />
+<input id="draw_btn" type="button" value="render">render</input>
+</form>
+
+Rendered in: <span id="rendertime">N/A</span> milliseconds
+<script src="mandelbrot.js"> </script>
+<script>
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var buff = new ArrayBuffer(800*800*4*2);
+var image = new ImageData(new Uint8ClampedArray(buff, 0, 800*800*4), 800, 800);
+var rt = document.getElementById("rendertime");
+var btn = document.getElementById("draw_btn");
+
+function draw(scale, cr, ci, maxiter, escape) {
+	var t, nt;
+	t = Date.now();
+	draw_mandelbrot_image(buff, 800, 800, scale, cr, ci, escape, maxiter, 0.0);
+	ctx.putImageData(image, 0, 0);
+	nt = Date.now();
+	rt.textContent = nt-t;
+}
+
+function parse_input(e) {
+	var scale = document.getElementById("in_scale").value;
+	var escape = document.getElementById("in_escape").value;
+	var maxiter = document.getElementById("in_iter").value;
+	var cr = document.getElementById("in_cr").value;
+	var ci = document.getElementById("in_ci").value;
+	scale = Math.max(+scale, 1.0);
+	escape = Math.max(+escape, 2.0);
+	escape *= escape;
+	maxiter = Math.max(maxiter|0, 2);
+	cr = Math.min(Math.max(+cr, -2), 2);
+	ci = Math.min(Math.max(+ci, -2), 2);
+	draw(scale, cr, ci, maxiter, escape);
+}
+
+
+btn.addEventListener('click', parse_input);
+</script>
+</body>
+</html>
